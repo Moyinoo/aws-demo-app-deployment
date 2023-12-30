@@ -27,7 +27,7 @@ ENV NODE_ENV production
 
 # Install only production dependencies
 # Use cache mount to speed up install of existing dependencies
-RUN --mount=type=cache,target=/usr/src/app/.npm \
+RUN --mount=type=cache,target=/home/app/.npm \
   npm set cache /home/app/.npm && \
   npm ci --only=production
 
