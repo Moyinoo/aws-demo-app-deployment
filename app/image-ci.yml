@@ -19,7 +19,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            moyinopoola/pvtrepo
+            029323888691.dkr.ecr.us-east-1.amazonaws.com/momo
           tags: |
             type=raw,value=latest
             type=ref,event=branch
@@ -28,24 +28,30 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value={{date 'YYYYMMDD'}}-{{sha}}
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
 
-      - name: Build and push
-        uses: docker/build-push-action@v4
-        with:
-          file: ./06-building-container-images/api-node/Dockerfile.8
-          context: ./05-example-web-application/api-node/
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: 029323888691.dkr.ecr.us-east-1.amazonaws.com/momo
+          IMAGE_TAG: nodejs_demo_image
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'moyinopoola/pvtrepo:latest'
+          image-ref: '029323888691.dkr.ecr.us-east-1.amazonaws.com/momo'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
