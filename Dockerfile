@@ -37,7 +37,7 @@ USER node
 
 # Copy remaining source code AFTER installing dependencies. 
 # Again, copy only the necessary files
-COPY --chown=node:node ./home/ .
+COPY --chown=node:node ./app/ .
 
 # Indicate expected port
 EXPOSE 3000
