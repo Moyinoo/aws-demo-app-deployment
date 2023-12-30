@@ -43,7 +43,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: demo
-          IMAGE_TAG: 1.0
+          IMAGE_TAG: demo_v1
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -51,7 +51,7 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '029323888691.dkr.ecr.us-east-1.amazonaws.com/demo'
+          image-ref: '029323888691.dkr.ecr.us-east-1.amazonaws.com/demo:demo_v1'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
