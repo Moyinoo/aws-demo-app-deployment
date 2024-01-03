@@ -1,80 +1,72 @@
-let express = require('express');
-let path = require('path');
-let fs = require('fs');
-let MongoClient = require('mongodb').MongoClient;
-let bodyParser = require('body-parser');
-let app = express();
+const express = require('express');
+const path = require('path');
+const fs = require('fs');
+const { Pool } = require('pg');
+const bodyParser = require('body-parser');
 
-app.use(bodyParser.urlencoded({
-  extended: true
-}));
+const app = express();
+
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.get('/', function (req, res) {
-    res.sendFile(path.join(__dirname, "index.html"));
-  });
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
-app.get('/profile-picture', function (req, res) {
-  let img = fs.readFileSync(path.join(__dirname, "images/profile-1.jpg"));
-  res.writeHead(200, {'Content-Type': 'image/jpg' });
+app.get('/profile-picture', (req, res) => {
+  const img = fs.readFileSync(path.join(__dirname, 'images/profile-1.jpg'));
+  res.writeHead(200, { 'Content-Type': 'image/jpg' });
   res.end(img, 'binary');
 });
 
-// use when starting application locally
-let mongoUrlLocal = "mongodb://admin:password@localhost:27017";
-
-// use when starting application as docker container
-let mongoUrlDocker = "mongodb://admin:password@mongodb";
-
-// pass these options to mongo client connect request to avoid DeprecationWarning for current Server Discovery and Monitoring engine
-let mongoClientOptions = { useNewUrlParser: true, useUnifiedTopology: true };
-
-// "user-account" in demo with docker. "my-db" in demo with docker-compose
-let databaseName = "my-db";
-
-app.post('/update-profile', function (req, res) {
-  let userObj = req.body;
-
-  MongoClient.connect(mongoUrlLocal, mongoClientOptions, function (err, client) {
-    if (err) throw err;
-
-    let db = client.db(databaseName);
-    userObj['userid'] = 1;
-
-    let myquery = { userid: 1 };
-    let newvalues = { $set: userObj };
-
-    db.collection("users").updateOne(myquery, newvalues, {upsert: true}, function(err, res) {
-      if (err) throw err;
-      client.close();
-    });
-
-  });
-  // Send response
-  res.send(userObj);
+// Database configuration
+const pool = new Pool({
+  user: 'postgres',
+  host: 'mydb.cfiuqqyyuzoi.us-east-2.rds.amazonaws.com',
+  database: 'mydb',
+  password: 'Hemovic11*',
+  port: 5432, // PostgreSQL default port
 });
 
-app.get('/get-profile', function (req, res) {
-  let response = {};
-  // Connect to the db
-  MongoClient.connect(mongoUrlLocal, mongoClientOptions, function (err, client) {
-    if (err) throw err;
+app.post('/update-profile', async (req, res) => {
+  const userObj = req.body;
+  const userId = 1; // Change this to the desired user ID
 
-    let db = client.db(databaseName);
+  try {
+    const client = await pool.connect();
+    const query = 'UPDATE users SET ... WHERE userid = $1'; // Update this query accordingly
 
-    let myquery = { userid: 1 };
-
-    db.collection("users").findOne(myquery, function (err, result) {
-      if (err) throw err;
-      response = result;
-      client.close();
-
-      // Send response
-      res.send(response ? response : {});
-    });
-  });
+    await client.query(query, [userId, /* Add your update values here */]);
+    client.release();
+    
+    // Send response
+    res.send(userObj);
+  } catch (err) {
+    console.error('Error executing query', err);
+    res.status(500).send('Error updating profile');
+  }
 });
 
-app.listen(3000, function () {
-  console.log("app listening on port 3000!");
+app.get('/get-profile', async (req, res) => {
+  const userId = 1; // Change this to the desired user ID
+
+  try {
+    const client = await pool.connect();
+    const query = 'SELECT * FROM users WHERE userid = $1'; // Modify this query
+
+    const result = await client.query(query, [userId]);
+    const response = result.rows[0] || {};
+
+    client.release();
+
+    // Send response
+    res.send(response);
+  } catch (err) {
+    console.error('Error executing query', err);
+    res.status(500).send('Error fetching profile');
+  }
+});
+
+app.listen(3000, () => {
+  console.log('app listening on port 3000!');
 });
