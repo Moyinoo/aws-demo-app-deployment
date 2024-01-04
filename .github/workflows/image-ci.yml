@@ -93,7 +93,7 @@ jobs:
 
       - name: Deploy with Docker Compose
         run: |
-              ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/my-app' && 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 029323888691.dkr.ecr.us-east-1.amazonaws.com'
-              && 'sudo docker-compose up -d'
+              ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/my-app && aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 029323888691.dkr.ecr.us-east-1.amazonaws.com'
+              ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo docker-compose up -d'
 
           
