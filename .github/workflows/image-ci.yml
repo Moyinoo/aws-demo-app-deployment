@@ -70,6 +70,10 @@ jobs:
             ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose'
             ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo chmod +x /usr/local/bin/docker-compose'
 
+      - name: Create Directory on EC2
+        run: |
+              ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'mkdir -p /home/my-app'
+              
       - name: Copy Source Code to EC2
         run: |
               scp -r $GITHUB_WORKSPACE/* ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/my-app/
