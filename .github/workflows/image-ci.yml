@@ -58,6 +58,12 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: whoami
   
+      - name: SSH into EC2
+        run: |
+          echo "Accepting unknown host key..."
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts    
+
       - name: Install Docker and Docker Compose
         run: |
             ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo apt update && sudo apt install -y docker.io'
