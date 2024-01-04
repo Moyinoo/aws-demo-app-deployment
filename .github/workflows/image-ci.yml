@@ -45,6 +45,7 @@ jobs:
           ECR_REPOSITORY: demo
           IMAGE_TAG: demo_v1
         run: |
+          npm cache clear --force
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           
