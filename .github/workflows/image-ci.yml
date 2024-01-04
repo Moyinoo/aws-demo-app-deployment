@@ -58,5 +58,27 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL'
 
+      - name: Setup SSH Connection
+        uses: appleboy/ssh-action@v2
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          port: ${{ secrets.SSH_PORT }}
+  
+      - name: Install Docker and Docker Compose
+        run: |
+            ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo apt update && sudo apt install -y docker.io'
+            ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo systemctl start docker && sudo systemctl enable docker'
+            ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose'
+            ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo chmod +x /usr/local/bin/docker-compose'
+            - name: Copy Source Code to EC2
+            run: |
+              scp -r $GITHUB_WORKSPACE ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home
+    
+      - name: Deploy with Docker Compose
+        run: |
+              ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home && sudo docker-compose up -d'
 
           
