@@ -72,10 +72,9 @@ jobs:
 
       - name: Copy Source Code to EC2
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'scp -rv $GITHUB_WORKSPACE ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home'
+              scp -r $GITHUB_WORKSPACE/* ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/my-app
     
       - name: Deploy with Docker Compose
         run: |
-              ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home && sudo docker-compose up -d'
-
+              ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/my-app && sudo docker-compose up -d'
           
