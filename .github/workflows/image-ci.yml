@@ -56,13 +56,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: ${{ secrets.SSH_PORT }}
-          script: whoami
-  
-      - name: SSH into EC2
-        run: |
-          echo "Accepting unknown host key..."
-          mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts   
+          script: whoami  
           
       - name: connection
         run: |
