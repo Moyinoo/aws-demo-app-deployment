@@ -72,8 +72,8 @@ jobs:
 
       - name: Create Directory on EC2
         run: |
-              ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'mkdir -p /home/my-app'
-              
+              ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo mkdir -p /home/my-app'
+
       - name: Copy Source Code to EC2
         run: |
               scp -r $GITHUB_WORKSPACE/* ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/my-app/
