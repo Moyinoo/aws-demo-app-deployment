@@ -1,43 +1,17 @@
-# Pin specific version for stability
-# Use slim for reduced image size
-FROM node:19.6-bullseye-slim AS base
+FROM node:13-alpine
 
-# Specify working directory other than /
-WORKDIR /usr/src/app
-
-# Copy only files required to install
-# dependencies (better layer caching)
-COPY package*.json ./
-
-FROM base as dev
-
-RUN npm install
-
-COPY . .
-
-CMD ["npm", "run", "dev"]
-
-FROM base as production
-
-# Set NODE_ENV
 ENV NODE_ENV production
 
-# Install only production dependencies
-# Use cache mount to speed up install of existing dependencies
-RUN npm ci --only=production
+RUN mkdir -p /home/app
 
-# Use non-root user
-# Use --chown on COPY commands to set file permissions
-USER node
+COPY ./app /home/app
 
-# Copy the healthcheck script
-COPY --chown=node:node ./healthcheck/ .
+# set default dir so that next commands executes in /home/app dir
+WORKDIR /home/app
 
-# Copy remaining source code AFTER installing dependencies. 
-# Again, copy only the necessary files
-COPY --chown=node:node ./src/ .
+# will execute npm install in /home/app because of WORKDIR
+RUN npm install
 
-# Indicate expected port
-EXPOSE 3000
+# no need for /home/app/server.js because of WORKDIR
+CMD ["node", "server.js"]
 
-CMD [ "node", "index.js" ]
