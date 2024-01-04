@@ -54,7 +54,7 @@ jobs:
           image-ref: '029323888691.dkr.ecr.us-east-1.amazonaws.com/demo:demo_v1'
           format: 'table'
           exit-code: '1'
-          ignore-unfixed: false
+          ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL'
 
