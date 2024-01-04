@@ -86,6 +86,10 @@ jobs:
         run: |
               scp -r $GITHUB_WORKSPACE/* ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/my-app/
 
+      - name: install python lib
+        run: |
+              ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo sudo yum install glibc'
+
       - name: Deploy with Docker Compose
         run: |
               ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/my-app && sudo docker-compose up -d'
