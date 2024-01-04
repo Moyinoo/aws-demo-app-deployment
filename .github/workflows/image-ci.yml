@@ -72,7 +72,7 @@ jobs:
 
       - name: Copy Source Code to EC2
         run: |
-              scp -r $GITHUB_WORKSPACE ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home
+          ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'scp -rv $GITHUB_WORKSPACE ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home'
     
       - name: Deploy with Docker Compose
         run: |
