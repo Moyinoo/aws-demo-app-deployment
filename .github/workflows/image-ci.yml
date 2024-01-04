@@ -91,11 +91,6 @@ jobs:
       - name: Install glibc on EC2
         run: |
           ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo yum install -y glibc'
-
-      - name: Authenticate Docker with ECR on EC2
-        run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/my-app && \
-            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 029323888691.dkr.ecr.us-east-1.amazonaws.com/demo'
         
       - name: Deploy with Docker Compose
         run: |
