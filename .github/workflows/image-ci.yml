@@ -94,9 +94,11 @@ jobs:
 
       - name: Authenticate Docker with ECR on EC2
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/my-app && \
-          docker login --username AWS --password "$(aws ecr get-login-password --region us-east-1)" 029323888691.dkr.ecr.us-east-1.amazonaws.com/demo'
-
+              ssh -i ~/.ssh/id_rsa ***@*** 'cd /home/my-app && \
+              AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+              AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+              AWS_DEFAULT_REGION=us-east-1 \
+              docker login --username AWS --password-stdin $(aws ecr get-login-password --region us-east-1) 029323888691.dkr.ecr.us-east-1.amazonaws.com/demo'
       - name: Deploy with Docker Compose
         run: |
           ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/my-app && sudo docker-compose up -d'
