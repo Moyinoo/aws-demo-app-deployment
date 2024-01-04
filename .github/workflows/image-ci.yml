@@ -73,8 +73,19 @@ jobs:
       - name: Create Directory on EC2
         run: |
               ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo mkdir -p /home/my-app'
-              scp -r $GITHUB_WORKSPACE/* ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/my-app/
+
+      - name: Grant permission to USER to write to directory
+        run: |
+              ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo chown -R ${{ secrets.EC2_USERNAME }} /home/my-app'
     
+      - name: Set read, write permission for directory
+        run: |
+              ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo chmod -R 755 /home/my-app'
+
+      - name: Copy source code from github workspace to directory
+        run: |
+              scp -r $GITHUB_WORKSPACE/* ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/my-app/
+
       - name: Deploy with Docker Compose
         run: |
               ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/my-app && sudo docker-compose up -d'
