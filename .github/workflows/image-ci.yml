@@ -59,13 +59,14 @@ jobs:
           severity: 'CRITICAL'
 
       - name: Setup SSH Connection
-        uses: appleboy/ssh-action@v2
+        uses: appleboy/ssh-action@v1.0.2
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: ${{ secrets.SSH_PORT }}
+          script: whoami
   
       - name: Install Docker and Docker Compose
         run: |
