@@ -1,19 +1,18 @@
-FROM node:13-alpine As base
+# Pin specific version for stability
+# Use slim for reduced image size
+FROM node:19.6-bullseye-slim AS base
 
-ENV MONGO_DB_USERNAME=admin \
-    MONGO_DB_PWD=password
+# Specify working directory other than /
+WORKDIR /usr/src/app
 
-RUN mkdir -p /home/app
-
-# set default dir so that next commands executes in /home/app dir
-WORKDIR /home/app
-
-COPY package*.json /home/app
+# Copy only files required to install
+# dependencies (better layer caching)
+COPY package*.json ./
 
 FROM base as dev
 
-RUN --mount=type=cache,target=/home/app/.npm \
-  npm set cache /home/app/.npm && \
+RUN --mount=type=cache,target=/usr/src/app/.npm \
+  npm set cache /usr/src/app/.npm && \
   npm install
 
 COPY . .
@@ -27,24 +26,20 @@ ENV NODE_ENV production
 
 # Install only production dependencies
 # Use cache mount to speed up install of existing dependencies
-RUN --mount=type=cache,target=/home/app/.npm \
-  npm set cache /home/app/.npm && \
-  npm ci --only=production
+RUN npm ci --only=production
 
 # Use non-root user
 # Use --chown on COPY commands to set file permissions
 USER node
 
+# Copy the healthcheck script
+COPY --chown=node:node ./healthcheck/ .
+
 # Copy remaining source code AFTER installing dependencies. 
 # Again, copy only the necessary files
-COPY --chown=node:node ./app/ .
+COPY --chown=node:node ./src/ .
 
 # Indicate expected port
 EXPOSE 3000
 
-# will execute npm install in /home/app because of WORKDIR
-RUN npm install
-
-# no need for /home/app/server.js because of WORKDIR
-CMD ["node", "server.js"]
-
+CMD [ "node", "index.js" ]
