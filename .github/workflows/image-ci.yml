@@ -50,7 +50,7 @@ jobs:
           
       - name: connection
         run: |
-          mkdir -p ~/.ssh
+          mkdir -p ~/.ssh && mkdir -p home/my-app
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
