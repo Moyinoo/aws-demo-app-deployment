@@ -1,119 +1,51 @@
-### DOCKER COMPOSE COMMANDS
-
-.PHONY: compose-build
-compose-build:
-	docker compose build
+### DOCKER COMPOSE
 
 .PHONY: compose-up
 compose-up:
-	docker compose up
+	docker compose -f docker-compose-prod.yml up
 
-.PHONY: compose-up-build
-compose-up-build:
-	docker compose up --build
+# -d flag runs containers in the background:
+.PHONY: compose-up-d
+compose-up-d:
+	docker compose -f docker-compose-prod.yml up -d
 
 .PHONY: compose-down
 compose-down:
-	docker compose down
+	docker compose -f docker-compose-prod.yml down
 
-### DOCKER CLI COMMANDS
+### DOCKER SWARM
+VM_IP?=34.226.205.8
+DOCKER_HOST:="ssh://ubuntu@${VM_IP}"
 
-DOCKERCONTEXT_DIR:=../
-DOCKERFILE_DIR:=../
+.PHONY: swarm-init
+swarm-init:
+	DOCKER_HOST=${DOCKER_HOST} docker swarm init
 
-.PHONY: docker-build-all
-docker-build-all:
-	docker build -t client-react-vite -f ${DOCKERFILE_DIR}/client-react/Dockerfile.3 ${DOCKERCONTEXT_DIR}/client-react/
+.PHONY: swarm-deploy-stack
+swarm-deploy-stack:
+	DOCKER_HOST=${DOCKER_HOST} docker stack deploy -c docker-swarm.yml example-app
 
-	docker build -t client-react-ngnix -f ${DOCKERFILE_DIR}/client-react/Dockerfile.5 ${DOCKERCONTEXT_DIR}/client-react/
+.PHONY: swarm-ls
+swarm-ls:
+	DOCKER_HOST=${DOCKER_HOST} docker service ls
 
-	docker build -t api-node -f ${DOCKERFILE_DIR}/api-node/Dockerfile.7 ${DOCKERCONTEXT_DIR}/api-node/
+.PHONY: swarm-remove-stack
+swarm-remove-stack:
+	DOCKER_HOST=${DOCKER_HOST} docker stack rm example-app
 
-	docker build -t api-golang -f ${DOCKERFILE_DIR}/api-golang/Dockerfile.6 ${DOCKERCONTEXT_DIR}/api-golang/
+.PHONY: create-secrets
+create-secrets:
+	printf "foobarbaz" | DOCKER_HOST=${DOCKER_HOST} docker secret create postgres-passwd -
+	printf "postgres://postgres:foobarbaz@db:5432/postgres" | DOCKER_HOST=${DOCKER_HOST} docker secret create database-url -
 
-DATABASE_URL:=postgres://postgres:foobarbaz@db:5432/postgres
+.PHONY: delete-secrets
+delete-secrets:
+	DOCKER_HOST=${DOCKER_HOST} docker secret rm postgres-passwd database-url
 
-.PHONY: docker-run-all
-docker-run-all:
-	echo "$$DOCKER_COMPOSE_NOTE"
-
-	# Stop and remove all running containers to avoid name conflicts
-	$(MAKE) docker-stop
-
-	$(MAKE) docker-rm
-
-	docker network create my-network
-
-	docker run -d \
-		--name db \
-		--network my-network \
-		-e POSTGRES_PASSWORD=foobarbaz \
-		-v pgdata:/var/lib/postgresql/data \
-		-p 5432:5432 \
-		--restart unless-stopped \
-		postgres:15.1-alpine
-
-	docker run -d \
-		--name api-node \
-		--network my-network \
-		-e DATABASE_URL=${DATABASE_URL} \
-		-p 3000:3000 \
-		--restart unless-stopped \
-		api-node
-
-	docker run -d \
-		--name api-golang \
-		--network my-network \
-		-e DATABASE_URL=${DATABASE_URL} \
-		-p 8080:8080 \
-		--restart unless-stopped \
-		api-golang
-
-	docker run -d \
-		--name client-react-vite \
-		--network my-network \
-		-v ${PWD}/client-react/vite.config.js:/usr/src/app/vite.config.js \
-		-p 5173:5173 \
-		--restart unless-stopped \
-		client-react-vite
-
-	docker run -d \
-		--name client-react-nginx \
-		--network my-network \
-		-p 80:8080 \
-		--restart unless-stopped \
-		client-react-ngnix
-
-.PHONY: docker-stop
-docker-stop:
-	-docker stop db
-	-docker stop api-node
-	-docker stop api-golang
-	-docker stop client-react-vite
-	-docker stop client-react-nginx
-
-.PHONY: docker-rm
-docker-rm:
-	-docker container rm db
-	-docker container rm api-node
-	-docker container rm api-golang
-	-docker container rm client-react-vite
-	-docker container rm client-react-nginx
-	-docker network rm my-network
-
-define DOCKER_COMPOSE_NOTE
-
-🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
-
-❯ NOTE:
-
-This command runs the example app with a bunch
-of individual docker run commands. This is much
-easier to manage with docker-compose (see 
-docker-compose.yml and compose make targets above)
-
-🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
-
-
-endef
-export DOCKER_COMPOSE_NOTE
+.PHONY: redeploy-all
+redeploy-all:
+	-$(MAKE) swarm-remove-stack
+	-$(MAKE) delete-secrets
+	@sleep 3
+	-$(MAKE) create-secrets
+	-$(MAKE) swarm-deploy-stack

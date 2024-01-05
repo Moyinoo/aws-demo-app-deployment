@@ -1,0 +1,37 @@
+version: '3.7'
+
+services:
+  client-react-nginx:
+    image: 029323888691.dkr.ecr.us-east-1.amazonaws.com/momo:latest
+    networks:
+      - frontend
+    ports:
+      - 80:8080
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+  api-node:
+    image: 029323888691.dkr.ecr.us-east-1.amazonaws.com/demo:latest
+    read_only: true
+    networks:
+      - frontend
+      - backend
+    ports:
+      - 3000:3000
+    init: true
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "/usr/src/app/healthcheck.js"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+  
+
+networks:
+  frontend:
+  backend:
