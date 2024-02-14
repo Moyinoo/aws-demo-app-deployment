@@ -64,7 +64,7 @@ jobs:
 
       - name: Create Directory on EC2
         run: |
-              ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo rm -r /home/my-app && sudo mkdir -p /home/my-app'
+              ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} ' sudo mkdir -p /home/my-app'
 
       - name: Grant permission to USER to write to directory
         run: |
