@@ -20,7 +20,7 @@ jobs:
         with:
           images: |
             339712786123.dkr.ecr.us-east-2.amazonaws.com/api-node:2.0  
-            339712786123.dkr.ecr.us-east-2.amazonaws.com/client-react:1.0 
+            339712786123.dkr.ecr.us-east-2.amazonaws.com/client-react:1.0
           tags: |
             type=raw,value=latest
             type=ref,event=branch
