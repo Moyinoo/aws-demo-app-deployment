@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   client-react-nginx:
-    image: 029323888691.dkr.ecr.us-east-1.amazonaws.com/momo:latest
+    image: 339712786123.dkr.ecr.us-east-2.amazonaws.com/client-react:1.0
     networks:
       - frontend
     ports:
@@ -15,7 +15,7 @@ services:
       retries: 3
       start_period: 10s
   api-node:
-    image: 029323888691.dkr.ecr.us-east-1.amazonaws.com/demo:latest
+    image: 339712786123.dkr.ecr.us-east-2.amazonaws.com/api-node:2.0
     read_only: true
     networks:
       - frontend
