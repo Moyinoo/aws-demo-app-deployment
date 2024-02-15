@@ -85,4 +85,6 @@ jobs:
         
       - name: Deploy with Docker Compose
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/my-app && sudo yum update -y && aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 339712786123.dkr.ecr.us-east-2.amazonaws.com && sudo docker-compose -f docker-compose-prod.yml up -d'
+          ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/my-app && aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 339712786123.dkr.ecr.us-east-2.amazonaws.com'
+          ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo docker-compose -f docker-compose-prod.yml up -d'
+
