@@ -10,7 +10,7 @@ services:
     restart: unless-stopped
     
   api-node:
-    image: 339712786123.dkr.ecr.us-east-2.amazonaws.com/api-node:5.0
+    image: 339712786123.dkr.ecr.us-east-2.amazonaws.com/api-node:7.0
     read_only: true
     networks:
       - frontend
