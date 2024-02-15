@@ -51,23 +51,19 @@ jobs:
             ssh -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=~/.ssh/known_hosts -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}
           
 
-      - name: Create Directory on EC2
-        run: |
-              ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo mkdir -p /home/my-app'
-
       - name: Grant permission to USER to write to directory
         run: |
-              ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo chown -R ${{ secrets.EC2_USERNAME }} /home/my-app'
+              ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo chown -R ${{ secrets.EC2_USERNAME }} /home/ubuntu'
     
       - name: Set read, write permission for directory
         run: |
-              ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo chmod -R 755 /home/my-app'
+              ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo chmod -R 755 /home/ubuntu'
 
 
       - name: Copy source code from GitHub workspace to directory
         run: |
-          scp -r $GITHUB_WORKSPACE/* ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/my-app/
+          scp -r $GITHUB_WORKSPACE/* ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/ubuntu/
         
       - name: Deploy with Docker Compose
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/my-app && aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 339712786123.dkr.ecr.us-east-2.amazonaws.com && docker-compose -f docker-compose-prod.yml up -d'
+          ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 339712786123.dkr.ecr.us-east-2.amazonaws.com && docker-compose -f docker-compose-prod.yml up -d'
