@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   client-react-nginx:
-    image: 339712786123.dkr.ecr.us-east-2.amazonaws.com/client-react:1.0
+    image: 339712786123.dkr.ecr.us-east-2.amazonaws.com/client-react
     networks:
       - frontend
     ports:
@@ -10,7 +10,7 @@ services:
     restart: unless-stopped
     
   api-node:
-    image: 339712786123.dkr.ecr.us-east-2.amazonaws.com/api-node:2.0
+    image: 339712786123.dkr.ecr.us-east-2.amazonaws.com/api-node
     read_only: true
     networks:
       - frontend
