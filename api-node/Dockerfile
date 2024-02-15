@@ -1,6 +1,6 @@
 # Pin specific version for stability
 # Use slim for reduced image size
-FROM node:19.6-bullseye-slim
+FROM node:19.6-bullseye-slim as build
 
 # Set NODE_ENV
 ENV NODE_ENV production
@@ -31,5 +31,9 @@ COPY --chown=node:node ./src/ .
 
 # Indicate expected port
 EXPOSE 3000
+
+FROM gcr.io/distroless/nodejs20-debian12
+
+COPY --chown=node:node --from=build /usr/src/app /app
 
 CMD [ "node", "index.js" ]
