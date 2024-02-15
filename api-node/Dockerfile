@@ -32,7 +32,7 @@ COPY --chown=node:node ./src/ .
 # Indicate expected port
 EXPOSE 3000
 
-FROM gcr.io/distroless/nodejs20-debian12
+FROM node
 
 COPY --chown=node:node --from=build /usr/src/app /app
 
