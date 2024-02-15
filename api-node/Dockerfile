@@ -16,7 +16,7 @@ COPY package*.json ./
 # Use cache mount to speed up install of existing dependencies
 RUN --mount=type=cache,target=/usr/src/app/.npm \
   npm set cache /usr/src/app/.npm && \
-  npm ci --only=production
+  npm install
 
 # Use non-root user
 # Use --chown on COPY commands to set file permissions
@@ -32,7 +32,7 @@ COPY --chown=node:node ./src/ .
 # Indicate expected port
 EXPOSE 3000
 
-FROM node
+FROM gcr.io/distroless/nodejs20-debian12
 
 COPY --chown=node:node --from=build /usr/src/app /app
 
