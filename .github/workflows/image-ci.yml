@@ -19,7 +19,8 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-           029323888691.dkr.ecr.us-east-1.amazonaws.com/demo
+           339712786123.dkr.ecr.us-east-2.amazonaws.com/api-node
+           339712786123.dkr.ecr.us-east-2.amazonaws.com/client-react
           tags: |
             type=raw,value=latest
             type=ref,event=branch
@@ -33,11 +34,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+          aws-region: us-east-2
 
       - name: connection
         run: |
@@ -77,4 +74,4 @@ jobs:
         
       - name: Deploy with Docker Compose
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/my-app && sudo docker-compose -f docker-compose-prod.yml up -d'
+          ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/my-app && aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 339712786123.dkr.ecr.us-east-2.amazonaws.com && sudo docker-compose -f docker-compose-prod.yml up -d'
