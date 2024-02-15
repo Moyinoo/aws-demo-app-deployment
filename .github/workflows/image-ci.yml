@@ -70,7 +70,7 @@ jobs:
 
       - name: Install glibc on EC2
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo yum install -y glibc'
+          ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo apt install -y glibc'
         
       - name: Deploy with Docker Compose
         run: |
