@@ -14,9 +14,8 @@ COPY package*.json ./
 
 # Install only production dependencies
 # Use cache mount to speed up install of existing dependencies
-RUN --mount=type=cache,target=/usr/src/app/.npm \
-  npm set cache /usr/src/app/.npm && \
-  npm install
+RUN npm cache clear --force \ 
+  npm ci --only=production
 
 # Use non-root user
 # Use --chown on COPY commands to set file permissions
