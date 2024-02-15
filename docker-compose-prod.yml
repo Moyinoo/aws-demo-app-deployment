@@ -8,12 +8,7 @@ services:
     ports:
       - 80:8080
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
+    
   api-node:
     image: 339712786123.dkr.ecr.us-east-2.amazonaws.com/api-node:2.0
     read_only: true
@@ -24,14 +19,7 @@ services:
       - 3000:3000
     init: true
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "node", "/usr/src/app/healthcheck.js"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
   
-
 networks:
   frontend:
   backend:
