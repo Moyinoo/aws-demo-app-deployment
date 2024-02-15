@@ -19,8 +19,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            339712786123.dkr.ecr.us-east-2.amazonaws.com/api-node:2.0  
-            339712786123.dkr.ecr.us-east-2.amazonaws.com/client-react:1.0
+           029323888691.dkr.ecr.us-east-1.amazonaws.com/demo
           tags: |
             type=raw,value=latest
             type=ref,event=branch
@@ -34,7 +33,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-2
+          aws-region: us-east-1
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -53,18 +52,11 @@ jobs:
                 
             echo "Connecting to EC2 instance..."
             ssh -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=~/.ssh/known_hosts -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}
-  
           
-      - name: Install Docker and Docker Compose
-        run: |
-            ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo yum install -y docker'
-            ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo systemctl start docker && sudo systemctl enable docker'
-            ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose'
-            ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo chmod +x /usr/local/bin/docker-compose'
 
       - name: Create Directory on EC2
         run: |
-              ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} ' sudo mkdir -p /home/my-app'
+              ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo rm -r /home/my-app && sudo mkdir -p /home/my-app'
 
       - name: Grant permission to USER to write to directory
         run: |
@@ -81,10 +73,8 @@ jobs:
 
       - name: Install glibc on EC2
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo yum update -y && sudo yum install -y glibc'
+          ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo yum install -y glibc'
         
       - name: Deploy with Docker Compose
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/my-app && aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 339712786123.dkr.ecr.us-east-2.amazonaws.com'
           ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/my-app && sudo docker-compose -f docker-compose-prod.yml up -d'
-
