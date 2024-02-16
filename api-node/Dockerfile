@@ -14,15 +14,13 @@ COPY package*.json ./
 
 # Install only production dependencies
 # Use cache mount to speed up install of existing dependencies
-RUN npm cache clear --force \ 
+RUN --mount=type=cache,target=/usr/src/app/.npm \
+  npm set cache /usr/src/app/.npm && \
   npm ci --only=production
 
 # Use non-root user
 # Use --chown on COPY commands to set file permissions
 USER node
-
-# Copy the healthcheck script
-COPY --chown=node:node ./healthcheck/ .
 
 # Copy remaining source code AFTER installing dependencies. 
 # Again, copy only the necessary files
@@ -33,6 +31,6 @@ EXPOSE 3000
 
 FROM gcr.io/distroless/nodejs20-debian12
 
-COPY --chown=node:node --from=build /usr/src/app /app
+COPY --chown=node:node --from=build /usr/src/app /usr/src/app
 
 CMD [ "node", "index.js" ]
